@@ -1,0 +1,380 @@
+<div class="container">
+<div class="main-body p-0" id="main-container">
+    <div *ngIf="isLoggedIn ; else loggedOut" id="inner-container">
+    <div class="inner-wrapper">
+        <!-- Inner sidebar -->
+        <div class="inner-sidebar">
+            <!-- Inner sidebar header -->
+            <div class="inner-sidebar-header justify-content-center">
+                <button (click)="onOpenModal(null, 'add')" class="btn btn-primary has-icon btn-block" type="button" data-toggle="modal" data-target="#addPatientModal">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-plus mr-2">
+                        <line x1="12" y1="5" x2="12" y2="19"></line>
+                        <line x1="5" y1="12" x2="19" y2="12"></line>
+                    </svg>
+                    NEW PATIENT
+                </button>
+            </div>
+            <!-- /Inner sidebar header -->
+
+            <!-- Inner sidebar body -->
+            <div class="inner-sidebar-body p-0">
+                <div class="p-3 h-100" data-simplebar="init">
+                    <div class="simplebar-wrapper" style="margin: -16px;">
+                        <div class="simplebar-height-auto-observer-wrapper"><div class="simplebar-height-auto-observer"></div></div>
+                        <div class="simplebar-mask">
+                            <div class="simplebar-offset" style="right: 0px; bottom: 0px;">
+                                <div class="simplebar-content-wrapper" style="height: 100%; overflow: hidden scroll;">
+                                    <div class="simplebar-content" style="padding: 16px;">
+                                        <nav class="nav nav-pills nav-gap-y-1 flex-column">
+                                            <a (click)="getPatients()" href="javascript:void(0)" class="nav-link nav-link-faded has-icon active">All Records</a>
+                                            <a *ngIf="userRole" (click)="onOpenModal(null, 'register')" href="javascript:void(0)" class="nav-link nav-link-faded  has-icon">Register</a>
+                                            <a (click)="handleJWTAuthLogout()" href="javascript:void(0)" class="nav-link nav-link-faded text-danger has-icon">Logout</a>
+                                        </nav>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="simplebar-placeholder" style="width: 234px; height: 292px;"></div>
+                    </div>
+                    <div class="simplebar-track simplebar-horizontal" style="visibility: hidden;"><div class="simplebar-scrollbar" style="width: 0px; display: none;"></div></div>
+                    <div class="simplebar-track simplebar-vertical" style="visibility: visible;"><div class="simplebar-scrollbar" style="height: 151px; display: block; transform: translate3d(0px, 0px, 0px);"></div></div>
+                </div>
+            </div>
+            <!-- /Inner sidebar body -->
+        </div>
+        <!-- /Inner sidebar -->
+
+        <!-- Inner main -->
+        <div class="inner-main">
+            <!-- Inner main header -->
+            <div class="inner-main-header">
+                  <h4 *ngIf="getAuthUser()">Howdy, {{getAuthUser()}}!</h4>
+              
+                  
+                <span class="input-icon input-icon-sm ml-auto w-auto">
+                    <input type="search" (ngModelChange)="searchPatients(key.value)" #key="ngModel" ngModel name="key"
+                    class="form-control form-control-sm bg-gray-200 border-gray-200 shadow-none mb-4 mt-4" placeholder="Search Patients" />
+                </span>
+            </div>
+            <!-- /Inner main header -->
+
+            <!-- Inner main body -->
+
+            <!-- Forum List -->
+            <div class="inner-main-body p-2 p-sm-3 collapse forum-content show">
+              <div *ngFor="let patient of patients">
+                <div class="card mb-2">
+                    <div class="card-body p-2 p-sm-3">
+                        <div class="media forum-item">
+                            <a href="#" data-toggle="collapse" data-target=".forum-content">
+                              <img src="https://bootdey.com/img/Content/avatar/avatar1.png" class="mr-3 rounded-circle" width="50" alt="User" /></a>
+                            <div class="media-body">
+                                <h5>
+                                  <a href="#" data-toggle="collapse" data-target=".forum-content" class="text-body">{{patient?.name | titlecase}}</a>
+                                </h5>
+                                <h6>Age: <span class="badge bg-dark text-white">{{patient?.age}}</span></h6>
+                                <h6>Patient No.: <span class="badge bg-dark text-white">{{patient?.patientNo}}</span></h6>
+                                <h6 class="fs-3">Medical History:</h6>
+                                <div class="d-block  bg-light shadow-sm p-1 mb-3 rounded border border-2">
+                                  <p  class="text-secondary p-2">
+                                    {{patient?.history | titlecase }}
+                                  </p>
+                                </div>
+                                
+                                <div class="float-left text-white btn-group btn-group-sm align-self-end">
+                                  <a (click)="onOpenModal(patient, 'edit')" data-placement="top" data-original-title="Edit" class="btn btn-primary tooltips">
+                                    <i class="fas fa-pencil-alt"></i>
+                                  </a>
+                                  <a (click)="onOpenModal(patient, 'delete')" data-placement="top" data-original-title="Delete" class="btn btn-secondary tooltips">
+                                    <i class="fa fa-times"></i>
+                                  </a>
+                                </div>
+                            </div>
+                            <div class="text-muted small text-center align-self-start">
+                              <span class="d-none d-sm-inline-block"><i class="fas fa-envelope ml-2"></i> {{patient?.email}}</span>
+                              <span><i class="fas fa-phone ml-2"></i> {{patient?.phone}}</span>
+                            </div>
+                          
+                        </div>
+                    </div>
+                </div>
+              </div>
+              <div *ngIf="patients?.length == 0" class="card mb-2">
+                <div class="alert alert-info" role="alert">
+                  <h4 class="alert-heading">NO PATIENTS</h4>
+                  <P>No Patients were found.</P>
+                </div>
+              </div>
+              <!-- pagination -->
+                <ul class="pagination pagination-sm pagination-circle justify-content-center mb-0">
+                    <li class="page-item disabled">
+                        <span class="page-link has-icon"><i class="material-icons">chevron_left</i></span>
+                    </li>
+                    <li class="page-item"><a class="page-link" href="javascript:void(0)">1</a></li>
+                    <li class="page-item active"><span class="page-link">2</span></li>
+                    <li class="page-item"><a class="page-link" href="javascript:void(0)">3</a></li>
+                    <li class="page-item">
+                        <a class="page-link has-icon" href="javascript:void(0)"><i class="material-icons">chevron_right</i></a>
+                    </li>
+                </ul>
+            </div>
+            <!-- /Forum List -->
+
+            <!-- Forum Detail -->
+            <div class="inner-main-body p-2 p-sm-3 collapse forum-content">
+                <a href="#" class="btn btn-light btn-sm mb-3 has-icon" data-toggle="collapse" data-target=".forum-content"><i class="fa fa-arrow-left mr-2"></i>Back</a>
+                <div class="card mb-2">
+                    <div class="card-body">
+                        <div class="media forum-item">
+                            <a href="javascript:void(0)" class="card-link">
+                                <img src="https://bootdey.com/img/Content/avatar/avatar1.png" class="rounded-circle" width="50" alt="User" />
+                                <small class="d-block text-center text-muted">patient</small>
+                            </a>
+                            <div class="media-body ml-3">                                
+                                <small class="text-muted">{{currentDate | date:'dd-MM-yyyy'}}</small>
+                                <h5 class="mt-1">Appointment History</h5>
+                                <div>
+                                    <p>
+                                        hamString Injury;
+                                    </p>
+                                </div>
+                                <div class="float-left text-white btn-group btn-group-sm align-self-end">
+                                    <button class="btn btn-primary ">Book an Appointment</button>
+                                    <button class="btn btn-secondary ">Cancel Appointment</button>
+                                </div>
+                            </div>
+                            <div class="text-muted small text-center">
+                                <span class="d-none d-sm-inline-block"><i class="far fa-eye"></i> 19</span>
+                                <span><i class="far fa-comment ml-2"></i> 3</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <!-- /Forum Detail -->
+
+            <!-- /Inner main body -->
+        </div>
+        <!-- /Inner main -->
+    </div>
+
+    <!-- Add Patient Modal -->
+
+    <div class="modal fade" id="addPatientModal" tabindex="-1" role="dialog" aria-labelledby="" aria-hidden="true">
+      <div class="modal-dialog modal-lg" role="document">
+          <div class="modal-content">
+              <form #addForm="ngForm" (ngSubmit)="onAddPatient(addForm)">
+                  <div class="modal-header d-flex align-items-center bg-primary text-white">
+                      <h6 class="modal-title mb-0" id="">Add Patient</h6>
+                      <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                          <span aria-hidden="true">×</span>
+                      </button>
+                  </div>
+                  <div class="modal-body">
+                      <div class="form-group">
+                          <label for="name">Name</label>
+                          <input type="text" ngModel class="form-control" name="name" id="name" placeholder="Enter Name" required autofocus="" />
+                      </div>
+                      <div class="form-group">
+                        <label for="email">Email Address</label>
+                        <input type="email" ngModel class="form-control" name="email" id="email" placeholder="Enter email" required autofocus="" />
+                      </div>
+                      <div class="form-group">
+                        <label for="phone">Phone</label>
+                        <input type="text" ngModel class="form-control" name="phone" id="phone" placeholder="Enter Phone" required autofocus="" />
+                    </div>
+                    <div class="form-group">
+                      <label for="age">Age</label>
+                      <input type="number" ngModel class="form-control" name="age" id="age" placeholder="Enter Age" required autofocus="" />
+                    </div>
+                    <div class="form-group">
+                      <label for="history">Medical History</label>
+                      <textarea ngModel class="form-control summernote" name="history" ></textarea>
+                  </div>
+         
+                  </div>
+                  <div class="modal-footer">
+                      <button type="button" id="add-patient-form" class="btn btn-light" data-dismiss="modal">Cancel</button>
+                      <button [disabled]="addForm.invalid"  type="submit" class="btn btn-primary">Add</button>
+                  </div>
+              </form>
+          </div>
+      </div>
+  </div>
+
+    <!-- edit Patient Modal -->
+    <div class="modal fade" id="editPatientModal" tabindex="-1" role="dialog" aria-labelledby="" aria-hidden="true">
+      <div class="modal-dialog modal-lg" role="document">
+        <div class="modal-content">
+          <form #editForm="ngForm">
+              <div class="modal-header d-flex align-items-center bg-primary text-white">
+                  <h6 class="modal-title mb-0" id="">Add Patient</h6>
+                  <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                      <span aria-hidden="true">×</span>
+                  </button>
+              </div>
+              <div class="modal-body">
+                  <div class="form-group">
+                      <label for="name">Name</label>
+                      <input type="text" ngModel={{editPatient?.name}} class="form-control" name="name" id="edit-name" placeholder="Enter Name" required autofocus="" />
+                  </div>
+                  <input type="hidden" ngModel={{editPatient?.id}} name="id" class="form-control">
+                  <input type="hidden" ngModel={{editPatient?.patientNo}} name="patientNo" class="form-control">
+                  <div class="form-group">
+                    <label for="email">Email Address</label>
+                    <input type="email" ngModel={{editPatient?.email}} class="form-control" name="email" id="edit-email" placeholder="Enter email" required autofocus="" />
+                  </div>
+                  <div class="form-group">
+                    <label for="phone">Phone</label>
+                    <input type="text" ngModel={{editPatient?.phone}} class="form-control" name="phone" id="edit-phone" placeholder="Enter Phone" required autofocus="" />
+                </div>
+                <div class="form-group">
+                  <label for="age">Age</label>
+                  <input type="number" ngModel={{editPatient?.age}} class="form-control" name="age" id="edit-age" placeholder="Enter Age" required autofocus="" />
+                </div>
+                <div class="form-group">
+                  <label for="history">Medical History</label>
+                  <textarea ngModel={{editPatient?.history}} class="form-control summernote" name="history" ></textarea>
+              </div>
+     
+              </div>
+              <div class="modal-footer">
+                  <button type="button" id="edit-patient-form" class="btn btn-light" data-dismiss="modal">Cancel</button>
+                  <button (click)="onUpdatePatient(editForm.value)" type="button" data-dismiss="modal" class="btn btn-primary">Add</button>
+              </div>
+          </form>
+      </div>
+      </div>
+  </div>
+
+      <!-- delete Patient Modal -->
+      <div class="modal fade" id="deletePatientModal" tabindex="-1" role="dialog" aria-labelledby="" aria-hidden="true">
+        <div class="modal-dialog modal-lg" role="document">
+            <div class="modal-content">
+                <form>
+                    <div class="modal-header d-flex align-items-center bg-primary text-white">
+                        <h6 class="modal-title mb-0" id="">Delete Patient</h6>
+                        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                            <span aria-hidden="true">×</span>
+                        </button>
+                    </div>
+                    <div class="modal-body">
+                      <p>Are you sure you want to delete patient {{deletePatient?.name}}?</p>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-dismiss="modal">No</button>
+                        <button (click)="onDeletePatient(deletePatient!.id)" type="button" class="btn btn-danger" data-dismiss="modal">Yes</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <!-- <div id="loginModal" class="modal show" tabindex="-1" role="dialog" aria-hidden="true">
+        <div class="modal-dialog modal-lg" role="document">
+        <div class="modal-content">
+            <div class="modal-header d-flex align-items-center bg-primary text-white">
+                <h1 class="modal-title text-center" id="">Login</h1>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">×</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                <form #loginForm="ngForm" class="form col-md-12 center-block">
+                <div class="form-group">
+                    <input type="text" ngModel name="username" class="form-control input-lg" placeholder="Username">
+                </div>
+                <div class="form-group">
+                    <input type="password" ngModel name="password" class="form-control input-lg" placeholder="Password">
+                </div>
+                <div class="form-group">
+                    <button (click)="handleJWTAuthLogin(loginForm.value)" class="btn btn-primary btn-lg btn-block ">Sign In</button>
+            
+                </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <div class="col-md-1accordion2">
+                <button  class="btn" data-dismiss="modal" aria-hidden="true">Cancel</button>
+                </div>	
+            </div>
+        </div>
+        </div>
+  </div> -->
+    <!-- Register User -->
+    <div id="registerModal" class="modal show" tabindex="-1" role="dialog" aria-hidden="true">
+        <div class="modal-dialog modal-lg" role="document">
+        <div class="modal-content">
+            <div class="modal-header d-flex align-items-center bg-primary text-white">
+                <h1 class="modal-title text-center" id="">User Registration</h1>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">×</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                <form #registerForm="ngForm" class="form col-md-12 center-block">
+                <div class="form-group">
+                    <input type="text" ngModel name="username" class="form-control input-lg" placeholder="Username">
+                </div>
+                <div class="form-group">
+                    <input type="password" ngModel name="password" class="form-control input-lg" placeholder="Password">
+                </div>
+                <div class="form-group">
+                    <button [disabled]="!userRole" (click)="handleAuthRegister(registerForm.value)" data-dismiss="modal" class="btn btn-primary btn-lg btn-block ">Register</button>
+                    
+                </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <div class="col-md-1accordion2">
+                <button id="register-form" class="btn" data-dismiss="modal" aria-hidden="true">Cancel</button>
+                </div>	
+            </div>
+        </div>
+        </div>
+    </div>
+
+ </div>
+
+
+    <!--login modal-->
+    <ng-template #loggedOut>
+    <div id="loginModal" class="modal show" tabindex="-1" role="dialog" aria-hidden="true">
+        <div class="modal-dialog modal-lg" role="document">
+        <div class="modal-content">
+            <div class="modal-header d-flex align-items-center bg-primary text-white">
+                <h1 class="modal-title text-center" id="">Login</h1>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">×</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                <form #loginForm="ngForm" class="form col-md-12 center-block">
+                <div class="form-group">
+                    <input type="text" ngModel name="username" class="form-control input-lg" placeholder="Username">
+                </div>
+                <div class="form-group">
+                    <input type="password" ngModel name="password" class="form-control input-lg" placeholder="Password">
+                </div>
+                <div class="form-group">
+                    <button (click)="handleJWTAuthLogin(loginForm.value)" class="btn btn-primary btn-lg btn-block ">Sign In</button>
+                    <span class="pull-right ">
+                        <a class="mr-3" href="#">Register</a>
+                    </span>
+                    <span>
+                        <a  href="#">Need help?</a>
+                    </span>
+                </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <div class="col-md-1accordion2">
+                <button id="login-form" class="btn" data-dismiss="modal" aria-hidden="true">Cancel</button>
+                </div>	
+            </div>
+        </div>
+        </div>
+  </div>
+</ng-template>
+</div>
+</div>
